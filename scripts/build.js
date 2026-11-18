@@ -2,17 +2,22 @@ import { build, context } from "esbuild";
 import { atlas, archive } from "../src/gallery-collections.js";
 import { cp, mkdir, readFile, writeFile, watch } from "node:fs/promises";
 
-await mkdir("dist", { recursive: true });
+const pages = process.argv.includes("--pages");
+const output = pages ? "." : "dist";
+await mkdir(output, { recursive: true });
 async function copyDemo() {
   const template = await readFile("demo/gallery.html.in", "utf8");
-  await cp("demo", "dist", {
-    recursive: true,
-    filter: (path) => !path.endsWith(".html.in"),
-  });
+  if (!pages)
+    await cp("demo", output, {
+      recursive: true,
+      filter: (path) => !path.endsWith(".html.in"),
+    });
   for (const [collection, plates] of Object.entries({ atlas, archive })) {
     const archived = collection === "archive";
     const page = {
       ...plates[0],
+      media: pages ? "./demo" : ".",
+      modules: pages ? "./assets" : ".",
       collection,
       count: plates.length,
       heading: archived ? "Plate archive" : "Signal atlas",
@@ -23,7 +28,7 @@ async function copyDemo() {
       otherTitle: archived ? "Signal atlas" : "Plate archive",
     };
     await writeFile(
-      archived ? "dist/archive.html" : "dist/index.html",
+      `${output}/${archived ? "archive" : "index"}.html`,
       template.replace(/{{(\w+)}}/g, (_, key) => page[key]),
     );
   }
@@ -31,7 +36,7 @@ async function copyDemo() {
 await copyDemo();
 const options = {
   entryPoints: ["src/wireframe-plate.js", "src/gallery.js"],
-  outdir: "dist",
+  outdir: pages ? "assets" : output,
   bundle: true,
   format: "esm",
   minify: true,

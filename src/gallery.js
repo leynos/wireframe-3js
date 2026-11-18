@@ -4,6 +4,8 @@ const byId = (id) => document.getElementById(id);
 const display = byId("display"),
   list = byId("list"),
   filter = byId("filter");
+const posterDir = new URL(".", byId("poster").src);
+const posterUrl = (id) => new URL(id + ".webp", posterDir).href;
 const archived = document.body.dataset.collection === "archive";
 const collection = archived ? archive : atlas;
 for (const [i, name] of movements.entries())
@@ -17,7 +19,7 @@ function renderList() {
     button.type = "button";
     button.setAttribute("aria-current", String(p === active));
     button.dataset.id = p.id;
-    button.innerHTML = `<img alt="" src="./posters/${p.id}.webp" loading="lazy"><span><small>Plate ${p.id}</small><strong>${p.title}</strong></span>`;
+    button.innerHTML = `<img alt="" src="${posterUrl(p.id)}" loading="lazy"><span><small>Plate ${p.id}</small><strong>${p.title}</strong></span>`;
     button.onclick = () => choose(p);
     list.append(button);
   }
@@ -29,7 +31,7 @@ function choose(p) {
   active = p;
   display.removeAttribute("paused");
   display.setAttribute("plate", p.id);
-  byId("poster").src = "./posters/" + p.id + ".webp";
+  byId("poster").src = posterUrl(p.id);
   byId("screen-id").textContent = "FIG. " + p.id;
   byId("chapter").textContent = "Plate " + p.id + " / " + movements[p.movement];
   byId("title").textContent = p.title;

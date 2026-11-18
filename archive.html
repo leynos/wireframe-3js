@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1014" />
+    <title>Plate archive · Wireframe</title>
+    <link rel="stylesheet" href="./demo/gallery.css" />
+    <script type="module" src="./assets/wireframe-plate.js"></script>
+    <script type="module" src="./assets/gallery.js"></script>
+  </head>
+  <body data-collection="archive">
+    <header class="mast">
+      <div class="bar">
+        <a class="wordmark" href="./" aria-label="Wireframe home"
+          ><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span
+          >wireframe</a
+        >
+        <span class="mast-divider"></span
+        ><a class="archive-label" href="./">Signal atlas</a>
+        <a class="project" href="https://leynos.github.io/wireframe-www/"
+          >Project site <span aria-hidden="true">↗</span></a
+        >
+      </div>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <p class="eyebrow"><i></i> The common signal</p>
+          <h1>Plate archive<span>.</span></h1>
+        </div>
+        <p class="summary">
+          Retired plates from the Wireframe signal atlas.
+        </p>
+      </div>
+      <div class="workspace">
+        <section class="viewer" aria-label="Plate viewer">
+          <div class="screen">
+            <wireframe-plate plate="01" id="display"
+              ><img id="poster" src="./demo/posters/01.webp" alt=""
+            /></wireframe-plate>
+            <span class="screen-id" id="screen-id">FIG. 01</span
+            ><i class="reticle tl"></i><i class="reticle tr"></i
+            ><i class="reticle bl"></i><i class="reticle br"></i>
+          </div>
+          <div class="transport">
+            <div class="state"><i></i><span id="status">Loading</span></div>
+            <div class="buttons">
+              <button
+                id="pause"
+                type="button"
+                aria-label="Pause motion"
+                title="Pause motion"
+              >
+                <span aria-hidden="true">Ⅱ</span>
+              </button>
+              <button
+                id="replay"
+                type="button"
+                aria-label="Replay scan"
+                title="Replay scan"
+              >
+                <span aria-hidden="true">↺</span>
+              </button>
+              <button
+                id="glow"
+                type="button"
+                aria-pressed="true"
+                title="Toggle phosphor glow"
+              >
+                Glow
+              </button>
+            </div>
+          </div>
+          <div class="caption" aria-live="polite">
+            <p class="meta" id="chapter"></p>
+            <h2 id="title">Signal avenue</h2>
+            <p id="caption">A cobalt boulevard carries a signal through a city of green crossings.</p>
+          </div>
+        </section>
+        <aside aria-labelledby="index-title">
+          <div class="index-head">
+            <h2 id="index-title">Scene index</h2>
+            <span>7 plates</span>
+          </div>
+          <label class="filter"
+            ><span aria-hidden="true">≡</span
+            ><select aria-label="Filter by movement" id="filter">
+              <option value="all">All movements</option>
+            </select></label
+          >
+          <nav class="list" id="list" aria-label="Select a scene"></nav>
+        </aside>
+      </div>
+      <footer>
+        <span>Wireframe / Visual archive</span
+        ><a href="https://github.com/leynos/wireframe">leynos/wireframe ↗</a>
+      </footer>
+    </main>
+  </body>
+</html>

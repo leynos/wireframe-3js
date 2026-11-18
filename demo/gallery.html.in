@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b1014" />
     <title>{{heading}} · Wireframe</title>
-    <link rel="stylesheet" href="./gallery.css" />
-    <script type="module" src="./wireframe-plate.js"></script>
-    <script type="module" src="./gallery.js"></script>
+    <link rel="stylesheet" href="{{media}}/gallery.css" />
+    <script type="module" src="{{modules}}/wireframe-plate.js"></script>
+    <script type="module" src="{{modules}}/gallery.js"></script>
   </head>
   <body data-collection="{{collection}}">
     <header class="mast">
@@ -37,7 +37,7 @@
         <section class="viewer" aria-label="Plate viewer">
           <div class="screen">
             <wireframe-plate plate="{{id}}" id="display"
-              ><img id="poster" src="./posters/{{id}}.webp" alt=""
+              ><img id="poster" src="{{media}}/posters/{{id}}.webp" alt=""
             /></wireframe-plate>
             <span class="screen-id" id="screen-id">FIG. {{id}}</span
             ><i class="reticle tl"></i><i class="reticle tr"></i

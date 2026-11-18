@@ -2,6 +2,8 @@
 
 Thirty embeddable Three.js illustrations for the Wireframe Rust binary-protocol library. The first 26 plates each reinterpret the correspondingly numbered screenshot in `reference/`, in filename order. Plates 27 and 28 recreate the routing hero and “Complexity, reduced” figure from the [Wireframe preview](https://leynos.github.io/wireframe-www/). Open either directly with `?plate=27` or `?plate=28`, or embed it using the same numbered custom element. Plate 29 combines Signal avenue and Street level into a continuous flight. Open it with `?plate=29`. Plate 30 animates packets through City in transit and pulls back to the Network panorama framing. Open it with `?plate=30`. The gallery groups the reference plates into the four movements from the visual identity. Its diagrams and instruments are concept artwork.
 
+[Open the live signal atlas](https://leynos.github.io/wireframe-3js/) · [Plate archive](https://leynos.github.io/wireframe-3js/archive.html)
+
 ## Run the gallery
 
 With Node.js 22 or later, npm and Make installed, run:
@@ -11,6 +13,10 @@ make dev
 ```
 
 Open <http://localhost:5173>. Set `PORT` to change the port. The development server rebuilds the modules when the source changes. The atlas opens on plate 29 and lists 23 current plates. The linked archive at `archive.html` holds the seven retired plates with their original embed IDs. Select a plate or filter either index by movement. The viewer has controls for pause, scan replay and phosphor glow.
+
+## Publish to GitHub Pages
+
+Run `make pages` after changing the gallery or scenes. Commit the generated `index.html`, `archive.html` and `assets/` alongside the source changes, then push to `main`. GitHub Pages serves the repository root with `.nojekyll` and uses the styles and posters in `demo/`.
 
 ## Embed a plate in a static site
 
