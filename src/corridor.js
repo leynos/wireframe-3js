@@ -1,3 +1,4 @@
+import { queueMotion } from "./queue-motion.js";
 import { C } from "./drawing.js";
 import { block, samples, mix } from "./civic-geometry.js";
 
@@ -107,10 +108,17 @@ export function corridor(d, id) {
     }
     return { eye: [6.5, 1.4, 10], target: [-0.3, 3.55, -3], fov: 56 };
   }
-  for (let z = -108; z < 10; z += 2.6) {
+  const packets = [];
+  const rows = 46,
+    spacing = 2.6;
+  for (let row = 0; row < rows; row++) {
+    const z = -108 + row * spacing;
     for (let lane = -2; lane <= 2; lane++) {
       const x = lane * 1.66,
         t = z + (lane % 2) * 0.64 + d.random() * 0.42;
+      const line = d.positions.length,
+        face = d.faces.length,
+        halo = d.halos.length;
       block(d, x, t, 1.02, 1.24, 0.89, C.red, 3.4);
       d.halo([x, 0.44, t], 1.12, C.red, 0.09);
       d.loop(
@@ -123,6 +131,14 @@ export function corridor(d, id) {
         C.red,
         1.6,
       );
+      packets.push({
+        z: t,
+        line,
+        end: d.positions.length,
+        face,
+        faceEnd: d.faces.length,
+        halo,
+      });
     }
     for (const sign of [-1, 1])
       block(
@@ -136,5 +152,12 @@ export function corridor(d, id) {
         0.85,
       );
   }
-  return { eye: [0, 3.1, 12], target: [0, 0, -0.2], fov: 48 };
+  return {
+    eye: [0, 3.1, 12],
+    target: [0, 0, -0.2],
+    fov: 48,
+    fixedCamera: true,
+    animateSurfaces: true,
+    animate: queueMotion(d, packets, rows * spacing),
+  };
 }

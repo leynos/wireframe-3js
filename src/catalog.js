@@ -39,7 +39,7 @@ const plates = [
   [
     "The envelope",
     1,
-    "A framed message sits inside a recessed equipment cabinet.",
+    "Two translucent envelopes sit before adjacent equipment cabinets. The first carries a routing tag.",
   ],
   [
     "Routing table",
@@ -49,7 +49,7 @@ const plates = [
   [
     "Queued frames",
     1,
-    "Red frame contours queue along the lanes of a dark corridor.",
+    "Red cubes trace into view at the far end of the city corridor and travel towards the viewer.",
   ],
   [
     "Flush barrier",
@@ -80,7 +80,7 @@ const plates = [
   [
     "The bounded passage",
     2,
-    "An octagonal conduit encloses a single red frame.",
+    "A red cube accelerates down the octagonal passage. As it vanishes, the beam draws another cube at the entrance.",
   ],
   [
     "Buffer instruments",

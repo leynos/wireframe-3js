@@ -1,3 +1,4 @@
+import { passagePayload } from "./passage-payload.js";
 import { haloField } from "./phosphor.js";
 import * as T from "three";
 import { makePlate } from "./plates.js";
@@ -151,14 +152,17 @@ export class PlateRenderer {
       spanAt,
       animateSurfaces,
       animate,
-      pulse,
+      pulses = [],
+      panes = [],
+      payload,
+      fixedCamera,
       flightCamera,
       horizon,
       wideBloom = 1,
     } = makePlate(id);
+    this.fixedCamera = fixedCamera;
     this.flightCamera = flightCamera;
     this.halos = null;
-    this.updatePulse = null;
     const hasHalos = d.halos.length > 0;
     this.glass.uniforms.wideBloom.value = hasHalos ? wideBloom : 0;
     if (this.buffer.texture.generateMipmaps !== hasHalos) {
@@ -201,6 +205,7 @@ export class PlateRenderer {
             seconds,
             facePositions,
             this.halos?.geometry.attributes.position,
+            this.halos?.geometry.attributes.profile,
           )
       : null;
     if (animate) position.setUsage(T.DynamicDrawUsage);
@@ -231,9 +236,29 @@ export class PlateRenderer {
       transparent: true,
       blending: T.AdditiveBlending,
       depthTest: Boolean(d.faces.length),
-      depthWrite: false,
+      // The glass pass tests against nearer envelope strokes.
+      depthWrite: panes.length > 0,
     });
     this.scene.add(new T.LineSegments(geom, this.beam));
+    this.panes = panes.map(({ x, y, z, w, h, at, pitch = 0, yaw = 0 }) => {
+      const material = new T.MeshBasicMaterial({
+        color: 0x000000,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
+        transparent: true,
+        depthWrite: false,
+      });
+      const sheet = new T.Mesh(new T.PlaneGeometry(w, h), material);
+      sheet.position.set(x, y, z);
+      sheet.rotation.set(pitch, yaw, 0);
+      sheet.renderOrder = 1;
+      this.scene.add(sheet);
+      return { material, start: at / d.length };
+    });
+    this.updatePayload = payload
+      ? passagePayload(this.scene, d, payload, geom, this.beam)
+      : null;
     // The avenue towers, threshold frame and interchange pylons transmit light.
     // Reuse the traced segments for a faint return from behind their faces.
     if ([1, 2, 3, 4, 19, 22, 29].includes(id)) {
@@ -290,12 +315,16 @@ export class PlateRenderer {
       this.scene.add(new T.Points(sparks, phosphor));
     }
     if (hasHalos) {
-      this.halos = haloField(d, this.beam.uniforms.scan);
+      this.halos = haloField(
+        d,
+        this.beam.uniforms.scan,
+        payload ? d.halos.filter((h) => h !== payload.halo) : d.halos,
+      );
       if (animateSurfaces)
         this.halos.geometry.attributes.position.setUsage(T.DynamicDrawUsage);
       this.scene.add(this.halos);
     }
-    if (pulse) {
+    this.pulseUpdates = pulses.map((pulse) => {
       const emitter = {
         ...pulse,
         center: [0, 0, 0],
@@ -306,18 +335,18 @@ export class PlateRenderer {
       bloom.material.depthTest = true;
       this.scene.add(bloom);
       const tail = new T.Vector3();
-      this.updatePulse = (glow) => {
+      return (glow) => {
         tail.fromBufferAttribute(position, pulse.vertex);
         const head = bloom.position.fromBufferAttribute(
           position,
           pulse.vertex + 1,
         );
-        // Inactive tracers collapse to a point during the reply.
+        // Inactive tracers collapse to a point.
         const length = head.distanceTo(tail);
         bloom.visible = glow && length > 0.001;
         head.lerp(tail, 0.3);
       };
-    }
+    });
     this.labels = d.labels.map((l) => {
       const sprite = labelSprite(l);
       this.scene.add(sprite);
@@ -336,7 +365,8 @@ export class PlateRenderer {
   }
   draw(t, scan, glow, secondsAfterScan = Infinity) {
     this.animate?.(secondsAfterScan);
-    this.updatePulse?.(glow);
+    this.updatePayload?.(secondsAfterScan, scan, glow, t);
+    for (const update of this.pulseUpdates) update(glow);
     if (this.halos) {
       this.halos.visible = glow;
       this.halos.material.uniforms.time.value = t;
@@ -348,13 +378,14 @@ export class PlateRenderer {
         this.camera,
       );
     } else {
+      const cameraTime = this.fixedCamera ? 0 : t;
       const [x, y, z] = this.eye,
-        drift = Math.sin(t * 0.16) * 0.012;
+        drift = Math.sin(cameraTime * 0.16) * 0.012;
       const dx = x - this.target[0],
         dz = z - this.target[2];
       this.camera.position.set(
         x + dz * drift,
-        y + 0.04 * Math.sin(t * 0.21),
+        y + 0.04 * Math.sin(cameraTime * 0.21),
         z - dx * drift,
       );
       this.camera.lookAt(...this.target);
@@ -380,6 +411,8 @@ export class PlateRenderer {
       Math.PI;
     this.camera.updateProjectionMatrix();
     this.beam.uniforms.scan.value = scan;
+    for (const { material, start } of this.panes)
+      material.opacity = 0.75 * T.MathUtils.smoothstep(scan - start, 0, 0.035);
     this.labels.forEach(({ sprite, at }) => {
       sprite.visible = scan >= at;
     });

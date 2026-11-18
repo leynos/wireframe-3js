@@ -10,7 +10,7 @@ With Node.js 22 or later, npm and Make installed, run:
 make dev
 ```
 
-Open <http://localhost:5173>. Set `PORT` to change the port. The development server rebuilds the modules when the source changes. Select a plate or filter the index by movement. The viewer has controls for pause, scan replay and phosphor glow.
+Open <http://localhost:5173>. Set `PORT` to change the port. The development server rebuilds the modules when the source changes. The atlas opens on plate 29 and lists 23 current plates. The linked archive at `archive.html` holds the seven retired plates with their original embed IDs. Select a plate or filter either index by movement. The viewer has controls for pause, scan replay and phosphor glow.
 
 ## Embed a plate in a static site
 

@@ -4,12 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b1014" />
-    <title>Signal atlas · Wireframe</title>
+    <title>{{heading}} · Wireframe</title>
     <link rel="stylesheet" href="./gallery.css" />
     <script type="module" src="./wireframe-plate.js"></script>
     <script type="module" src="./gallery.js"></script>
   </head>
-  <body>
+  <body data-collection="{{collection}}">
     <header class="mast">
       <div class="bar">
         <a class="wordmark" href="./" aria-label="Wireframe home"
@@ -17,7 +17,7 @@
           >wireframe</a
         >
         <span class="mast-divider"></span
-        ><span class="archive-label">Visual archive</span>
+        ><a class="archive-label" href="{{otherUrl}}">{{otherTitle}}</a>
         <a class="project" href="https://leynos.github.io/wireframe-www/"
           >Project site <span aria-hidden="true">↗</span></a
         >
@@ -27,20 +27,19 @@
       <div class="intro">
         <div>
           <p class="eyebrow"><i></i> The common signal</p>
-          <h1>Signal atlas<span>.</span></h1>
+          <h1>{{heading}}<span>.</span></h1>
         </div>
         <p class="summary">
-          A collection of vector CRT scenes exploring the shapes of Wireframe, a
-          Rust binary-protocol library.
+          {{summary}}
         </p>
       </div>
       <div class="workspace">
         <section class="viewer" aria-label="Plate viewer">
           <div class="screen">
-            <wireframe-plate plate="01" id="display"
-              ><img id="poster" src="./posters/01.webp" alt=""
+            <wireframe-plate plate="{{id}}" id="display"
+              ><img id="poster" src="./posters/{{id}}.webp" alt=""
             /></wireframe-plate>
-            <span class="screen-id" id="screen-id">FIG. 01</span
+            <span class="screen-id" id="screen-id">FIG. {{id}}</span
             ><i class="reticle tl"></i><i class="reticle tr"></i
             ><i class="reticle bl"></i><i class="reticle br"></i>
           </div>
@@ -75,14 +74,14 @@
           </div>
           <div class="caption" aria-live="polite">
             <p class="meta" id="chapter"></p>
-            <h2 id="title">Signal avenue</h2>
-            <p id="caption"></p>
+            <h2 id="title">{{title}}</h2>
+            <p id="caption">{{caption}}</p>
           </div>
         </section>
         <aside aria-labelledby="index-title">
           <div class="index-head">
             <h2 id="index-title">Scene index</h2>
-            <span>30 plates</span>
+            <span>{{count}} plates</span>
           </div>
           <label class="filter"
             ><span aria-hidden="true">≡</span

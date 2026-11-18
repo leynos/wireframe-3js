@@ -114,6 +114,7 @@ footer,
   color: var(--accent);
   margin-left: 6px;
 }
+.archive-label:hover,
 .project:hover,
 footer a:hover {
   color: var(--accent);

@@ -441,8 +441,9 @@ export function heroDiagram(d) {
     d.halo(rim[6], 0.34, mint, 0.13);
   }
   const pulseStart = d.positions.length / 3;
-  const send = tracer(d, outbound, amber, true),
-    receive = tracer(d, reply, lilac);
+  const send = tracer(d, outbound, amber, true);
+  const replyStart = d.positions.length / 3;
+  const receive = tracer(d, reply, lilac);
   const animate = (position, seconds) => {
     const phase = Number.isFinite(seconds) ? (seconds % 7) / 7 : 0.42;
     for (const glint of glints)
@@ -456,7 +457,10 @@ export function heroDiagram(d) {
     eye: [0.9, 3.9, 24],
     target: [0, 0, 0],
     fov: 23.2,
-    pulse: { vertex: pulseStart, color: amber, radius: 0.44, power: 0.29 },
+    pulses: [
+      { vertex: pulseStart, color: amber, radius: 0.44, power: 0.29 },
+      { vertex: replyStart, color: lilac, radius: 0.44, power: 0.29 },
+    ],
     wideBloom: 0.27,
     animate,
   };
@@ -574,7 +578,7 @@ export function complexityDiagram(d) {
     eye: [0.55, 4.8, 23],
     target: [0, 0, 0],
     fov: 21.6,
-    pulse: { vertex: tick / 3, color: amber, radius: 0.37, power: 0.25 },
+    pulses: [{ vertex: tick / 3, color: amber, radius: 0.37, power: 0.25 }],
     wideBloom: 0.32,
     animate,
   };

@@ -64,54 +64,64 @@ function rack(d, x) {
     }
 }
 
-export function envelope(d) {
-  for (const x of [-9.1, 0, 9.1]) rack(d, x);
-  for (const z of [-0.24, 0, 0.13]) frame(d, 0, 0, z, 7.58, 5.83, steel, 1.05);
-  // The diagonal folds sit on both faces of the raised message carrier.
+function drawEnvelope(d, x) {
   const w = 3.7,
     h = 2.85;
-  d.face([
-    [-w / 2, -h / 2, 0.26],
-    [w / 2, -h / 2, 0.26],
-    [w / 2, h / 2, 0.26],
-    [-w / 2, h / 2, 0.26],
-  ]);
-  d.box(0, -h / 2, 0.85, w, h, 1.15, C.cyan, 1.65);
+  const at = d.length,
+    depth = 1.15,
+    z = 0.85;
+  d.box(x, -h / 2, z, w, h, depth, C.cyan, 1.65);
   d.path(
     [
-      [-w / 2, h / 2, 1.425],
-      [0, -0.45, 1.425],
-      [w / 2, h / 2, 1.425],
+      [x - w / 2, h / 2, 1.425],
+      [x, -0.45, 1.425],
+      [x + w / 2, h / 2, 1.425],
     ],
     C.cyan,
     1.6,
   );
   d.path(
     [
-      [-w / 2, -h / 2, 1.425],
-      [-0.38, -0.07, 1.425],
+      [x - w / 2, -h / 2, 1.425],
+      [x - 0.38, -0.07, 1.425],
     ],
     rim,
     1.15,
   );
   d.path(
     [
-      [w / 2, -h / 2, 1.425],
-      [0.38, -0.07, 1.425],
+      [x + w / 2, -h / 2, 1.425],
+      [x + 0.38, -0.07, 1.425],
     ],
     rim,
     1.15,
   );
   d.path(
     [
-      [-w / 2, -h / 2, 0.275],
-      [-w / 2, h / 2, 1.425],
-      [-w / 2, -h / 2, 1.425],
-      [-w / 2, h / 2, 0.275],
+      [x - w / 2, -h / 2, 0.275],
+      [x - w / 2, h / 2, 1.425],
+      [x - w / 2, -h / 2, 1.425],
+      [x - w / 2, h / 2, 0.275],
     ],
     C.cyan,
     0.85,
   );
+  return [
+    { x, y: 0, z: z - depth / 2, w, h, at },
+    { x, y: -h / 2, z, w, h: depth, pitch: -Math.PI / 2, at },
+    { x: x + w / 2, y: 0, z, w: depth, h, yaw: -Math.PI / 2, at },
+  ];
+}
+
+export function envelope(d) {
+  for (const x of [-9.1, 0, 9.1]) rack(d, x);
+  for (const x of [0, 9.1])
+    for (const z of [-0.24, 0, 0.13])
+      frame(d, x, 0, z, 7.58, 5.83, steel, 1.05);
+  // Sweep the dense cabinet wiring faster to give each envelope a visible turn at the beam.
+  d.times = d.times.map((time) => time * 0.035);
+  d.length *= 0.035;
+  const first = drawEnvelope(d, 0);
   const tag = [
     [0.45, 0.04],
     [0.72, 0.43],
@@ -126,7 +136,13 @@ export function envelope(d) {
   d.labels.at(-1).surface = true;
   d.label("ROUTE: MAIN_NET", 1.64, -0.1, 1.6, 0.18, C.green);
   d.labels.at(-1).surface = true;
-  return { eye: [-5.5, 3.25, 9.6], target: [0.3, 0, 0.45], fov: 35 };
+  const second = drawEnvelope(d, 9.1);
+  return {
+    eye: [-5.5, 3.9, 12.5],
+    target: [2.9, 0, 0.45],
+    fov: 28,
+    panes: [...first, ...second],
+  };
 }
 
 // A clipped-corner section gives the conduit a flat sill and vertical jambs.
@@ -316,6 +332,7 @@ export function boundedPassage(d) {
       );
   }
   const center = [-0.7, -0.32, -0.62];
+  const firstVertex = d.times.length;
   for (const size of [1.48, 0.77]) {
     const [x, y, z] = center;
     d.box(x, y - size / 2, z, size, size, size, C.red, 2);
@@ -342,5 +359,10 @@ export function boundedPassage(d) {
     );
   }
   d.halo(center, 1.68, C.red, 0.21);
-  return { eye: [-8.25, 2.1, 10.3], target: [-0.48, -0.18, -0.58], fov: 37 };
+  return {
+    eye: [-8.25, 2.1, 10.3],
+    target: [-0.48, -0.18, -0.58],
+    fov: 37,
+    payload: { firstVertex, halo: d.halos.at(-1) },
+  };
 }

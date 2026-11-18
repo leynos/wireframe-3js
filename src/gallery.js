@@ -1,13 +1,17 @@
-import { catalog, movements } from "./catalog.js";
+import { atlas, archive } from "./gallery-collections.js";
+import { movements } from "./catalog.js";
 const byId = (id) => document.getElementById(id);
 const display = byId("display"),
   list = byId("list"),
   filter = byId("filter");
-for (const [i, name] of movements.entries()) filter.add(new Option(name, i));
+const archived = document.body.dataset.collection === "archive";
+const collection = archived ? archive : atlas;
+for (const [i, name] of movements.entries())
+  if (collection.some((p) => p.movement === i)) filter.add(new Option(name, i));
 let active;
 function renderList() {
   list.replaceChildren();
-  for (const p of catalog.filter(matches)) {
+  for (const p of collection.filter(matches)) {
     const button = document.createElement("button");
     button.className = "row";
     button.type = "button";
@@ -34,7 +38,7 @@ function choose(p) {
     row.setAttribute("aria-current", String(row.dataset.id === p.id));
 }
 filter.onchange = () => {
-  if (!matches(active)) choose(catalog.find(matches));
+  if (!matches(active)) choose(collection.find(matches));
   renderList();
   list.scrollTop = 0;
 };
@@ -72,11 +76,19 @@ byId("glow").onclick = () =>
     String(!display.toggleAttribute("low-glow")),
   );
 const initialPlate = new URLSearchParams(location.search).get("plate");
-choose(catalog.find((p) => p.id === initialPlate) ?? catalog[0]);
-renderList();
-if (initialPlate === active.id) {
-  const row = list.querySelector('[aria-current="true"]');
-  list.scrollTop +=
-    row.getBoundingClientRect().top - list.getBoundingClientRect().top;
+const otherPage = archived ? atlas : archive;
+if (otherPage.some((p) => p.id === initialPlate)) {
+  const dest = new URL(archived ? "./" : "./archive.html", location.href);
+  dest.search = location.search;
+  dest.hash = location.hash;
+  location.replace(dest);
+} else {
+  choose(collection.find((p) => p.id === initialPlate) ?? collection[0]);
+  renderList();
+  if (initialPlate === active.id) {
+    const row = list.querySelector('[aria-current="true"]');
+    list.scrollTop +=
+      row.getBoundingClientRect().top - list.getBoundingClientRect().top;
+  }
+  sync();
 }
-sync();
