@@ -14,6 +14,18 @@ make dev
 
 Open <http://localhost:5173>. Set `PORT` to change the port. The development server rebuilds the modules when the source changes. The atlas opens on plate 29 and lists 23 current plates. The linked archive at `archive.html` holds the seven retired plates with their original embed IDs. Select a plate or filter either index by movement. The viewer has controls for pause, scan replay and phosphor glow.
 
+### Website diagram posters
+
+Plates 27 and 28 use the Common Signal v0.3 website palette, with Civic sphere violet (`#C9A2FF`) for the reply in plate 27. To reproduce their posters, open each plate in the demo with reduced motion enabled, normal glow, a 1440 × 1000 CSS viewport and device pixel ratio 1. Wait for the viewer’s `still` state. In the browser console, render the completed scan at the resting pose and export the 929 × 494 canvas:
+
+```js
+const plate = document.querySelector("#display");
+plate.renderer.draw(0, 1.02, true, Infinity);
+plate.canvas.toDataURL("image/webp", 0.95);
+```
+
+Save the decoded WebP to `demo/posters/27.webp` or `demo/posters/28.webp`.
+
 ## Publish to GitHub Pages
 
 Run `make pages` after changing the gallery or scenes. Commit the generated `index.html`, `archive.html` and `assets/` alongside the source changes, then push to `main`. GitHub Pages serves the repository root with `.nojekyll` and uses the styles and posters in `demo/`.

@@ -33,18 +33,18 @@ export function haloField(d, scan, emitters = d.halos) {
     geometry.setAttribute(name, new T.Float32BufferAttribute(values, size));
   }
   const material = new T.ShaderMaterial({
-    uniforms: { scan, time: { value: 0 } },
+    uniforms: { scan, time: { value: 0 }, intensity: { value: 1 } },
     vertexColors: true,
     transparent: true,
     blending: T.AdditiveBlending,
     depthWrite: false,
     depthTest: false,
     vertexShader: `attribute vec2 corner; attribute vec4 profile;
-    uniform float scan,time; varying vec2 uvHalo; varying vec3 tint; varying float rim;
+    uniform float scan,time,intensity; varying vec2 uvHalo; varying vec3 tint; varying float rim;
     void main(){
       uvHalo=corner; rim=profile.y;
       float reveal=smoothstep(-.002,.018,scan-profile.w);
-      tint=color*profile.z*reveal*(.94+.06*sin(time*.7+profile.x));
+      tint=color*profile.z*intensity*reveal*(.94+.06*sin(time*.7+profile.x));
       vec4 view=modelViewMatrix*vec4(position,1.);
       view.xy+=corner*profile.x; gl_Position=projectionMatrix*view;
     }`,

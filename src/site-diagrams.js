@@ -6,10 +6,11 @@ import {
 } from "three";
 import { C, TAU } from "./drawing.js";
 
-const mint = "#81ffd2",
-  amber = "#ffac36",
-  lilac = "#ff78d6",
-  underlay = "#33695c";
+// Common Signal v0.3 website diagram tokens.
+const { blue: cobalt, cyan: signal, green: flow } = C;
+const grid = "#173149",
+  border = "#31566f",
+  voidColour = "#040911";
 const at = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
 const diamond = (x, y, z, r) => [
   [x - r, y, z],
@@ -21,8 +22,8 @@ const diamond = (x, y, z, r) => [
 function floor(d) {
   const tile = (x, z) => [x * 0.94 + z * 0.342, -3.15, -x * 0.342 + z * 0.94];
   for (let i = -14; i <= 14; i += 1.4) {
-    d.path([tile(i, -14), tile(i, 14)], underlay, 0.34);
-    d.path([tile(-14, i), tile(14, i)], underlay, 0.34);
+    d.path([tile(i, -14), tile(i, 14)], grid, 0.34);
+    d.path([tile(-14, i), tile(14, i)], grid, 0.34);
   }
   for (let i = 0; i < 120; i++) {
     const x = (d.random() - 0.5) * 21,
@@ -33,7 +34,7 @@ function floor(d) {
         [x, y, z],
         [x + 0.025, y + 0.013, z],
       ],
-      mint,
+      border,
       0.52,
     );
   }
@@ -82,14 +83,14 @@ function chassis(d, x, y, yaw, colour) {
     });
     return rings[2];
   }
-  function legend(text, u, v, z, size, ink = colour) {
+  function legend(text, u, v, z, size, ink = signal) {
     label(d, text, ...point(u, v, z + 0.012), size, ink);
     Object.assign(d.labels.at(-1), { surface: true, yaw });
   }
   return { point, stroke, housing, legend };
 }
 
-function label(d, text, x, y, z, size, colour = mint) {
+function label(d, text, x, y, z, size, colour = signal) {
   d.label(text, x, y, z, size, colour);
   d.labels.at(-1).font = "500 48px monospace";
 }
@@ -101,7 +102,7 @@ function bit(d, value, x, y, z, s) {
         [x, y + s * 0.5, z],
         [x, y - s * 0.5, z],
       ],
-      mint,
+      signal,
       1.05,
     );
   else
@@ -114,7 +115,7 @@ function bit(d, value, x, y, z, s) {
         [0.25, -0.35],
         [0, -0.5],
       ].map(([u, v]) => [x + u * s, y + v * s, z]),
-      mint,
+      signal,
       1.05,
     );
 }
@@ -128,7 +129,7 @@ function funnel(d) {
         [mouth[0], mouth[1] + 1.5 * Math.sin(a), mouth[2] + 1.28 * Math.cos(a)],
         throat,
       ],
-      mint,
+      cobalt,
       0.65,
     );
   }
@@ -140,7 +141,7 @@ function funnel(d) {
         p[1] + 1.5 * (1 - t) * Math.sin((TAU * j) / 16),
         p[2] + 1.28 * (1 - t) * Math.cos((TAU * j) / 16),
       ]),
-      mint,
+      cobalt,
       t === 0 ? 1.5 : 0.64,
     );
   }
@@ -185,8 +186,8 @@ function tracer(d, points, c, request = false) {
     start = d.positions.length;
   const origin = [0, 0, 0];
   d.path([origin, origin], c, 4);
-  d.loop(diamond(0, 0, 0, 0.09), lilac, 2.8);
-  if (request) d.loop([origin, origin, origin, origin], amber, 2.7);
+  d.loop(diamond(0, 0, 0, 0.09), c, 2.8);
+  if (request) d.loop([origin, origin, origin, origin], flow, 2.7);
   return (out, t) => {
     const active = t >= 0 && t <= 1,
       head = path(t),
@@ -256,10 +257,10 @@ export function heroDiagram(d) {
         [x, -3.14, z],
         [x, 6, z],
       ],
-      "#307f67",
+      grid,
       0.36,
     );
-    for (let j = 0; j < 4; j++) d.junction([x, -2.6 + j * 2, z], "#458d73");
+    for (let j = 0; j < 4; j++) d.junction([x, -2.6 + j * 2, z], border);
   }
   for (let j = 0; j < 4; j++)
     d.path(
@@ -267,7 +268,7 @@ export function heroDiagram(d) {
         [-10.8, -2.6 + j * 2, -8.728],
         [10.8, -2.6 + j * 2, -5.272],
       ],
-      "#307f67",
+      grid,
       0.36,
     );
 
@@ -279,10 +280,10 @@ export function heroDiagram(d) {
       [-6.28, 0.32 + side * 0.82, 0.35],
       [-4.06, 0.33, 0.36],
     ];
-    d.path(rail, amber, 1.65);
-    glints.push(edgeGlint(d, rail, "#ffe4a2", 4.8, side === 1 ? 0.18 : 0.27));
+    d.path(rail, flow, 1.65);
+    glints.push(edgeGlint(d, rail, signal, 4.8, side === 1 ? 0.18 : 0.27));
   }
-  const codec = chassis(d, -3.42, 0.35, -0.49, mint);
+  const codec = chassis(d, -3.42, 0.35, -0.49, cobalt);
   const codecRim = codec.housing(0, 0, 2.12, 3.38, -0.82, 0.34, 0.21);
   codec.legend("FrameCodec", 0, 1.12, 0.34, 0.29);
   codec.legend("cuts frames", 0, -1.15, 0.34, 0.25);
@@ -294,24 +295,24 @@ export function heroDiagram(d) {
         [-0.7, side * 0.22, 0.75],
         [0.7, side * 0.22, 0.75],
       ],
-      amber,
+      flow,
       1.7,
     );
   }
-  const envelope = chassis(d, -0.96, 0.35, -0.38, mint);
+  const envelope = chassis(d, -0.96, 0.35, -0.38, cobalt);
   envelope.housing(0, 0, 1.71, 1.36, -0.53, 0.58, 0.17);
   envelope.legend("Envelope", 0, 0.16, 0.58, 0.31);
-  envelope.legend("id 2 · corr 7", 0, -0.32, 0.58, 0.19, lilac);
+  envelope.legend("id 2 · corr 7", 0, -0.32, 0.58, 0.19, signal);
   envelope.stroke([
     [-0.72, -0.08, 0.59],
     [0.72, -0.08, 0.59],
   ]);
-  const router = chassis(d, 1.55, 0.35, -0.51, mint);
+  const router = chassis(d, 1.55, 0.35, -0.51, cobalt);
   const routerRim = router.housing(0, 0, 2, 4.17, -0.95, 0.39, 0.23);
   router.legend("Router", 0, 1.52, 0.39, 0.43);
   router.legend("route by ID", 0, -1.56, 0.39, 0.25);
   const outlets = [1.03, 0, -1.03].map((v, i) => {
-    const ink = i === 1 ? amber : mint;
+    const ink = i === 1 ? flow : cobalt;
     router.housing(0.78, v, 0.51, 0.38, -0.3, 0.65, 0.08, ink);
     router.stroke(
       [
@@ -332,25 +333,17 @@ export function heroDiagram(d) {
     ["Control", -1.85, OctahedronGeometry],
   ];
   const inlets = rows.map(([name, y, Shape], i) => {
-    const selected = i === 1,
-      colour = selected ? mint : "#65b49c";
-    const unit = chassis(d, 6.05, y, 0.38, colour);
+    const selected = i === 1;
+    const unit = chassis(d, 6.05, y, 0.38, cobalt);
     const unitRim = unit.housing(0, 0, 3.24, 1.54, -0.86, 0.36, 0.17);
     unit.housing(-1.02, 0, 0.85, 0.98, 0.36, 0.52, 0.14);
     d.mesh(
       new Shape(0.32, 0).rotateY(0.38),
       ...unit.point(-1.02, 0, 0.71),
-      colour,
+      selected ? flow : cobalt,
       1.35,
     );
-    unit.legend(
-      "ID " + (i + 1),
-      0.43,
-      0.39,
-      0.36,
-      0.24,
-      selected ? lilac : colour,
-    );
+    unit.legend("ID " + (i + 1), 0.43, 0.39, 0.36, 0.24, signal);
     unit.legend(name, 0.5, -0.04, 0.36, 0.32);
     for (let j = 0; j < 10; j++) {
       const u = -0.28 + j * 0.16;
@@ -359,7 +352,7 @@ export function heroDiagram(d) {
           [u, -0.54, 0.38],
           [u, -0.44 + 0.09 * Math.sin(j * 1.7 + i), 0.38],
         ],
-        selected ? amber : colour,
+        selected ? flow : cobalt,
         1.1,
       );
     }
@@ -373,9 +366,11 @@ export function heroDiagram(d) {
     // Paired rails and transverse divisions read as packet cells even at rest.
     for (const side of [-1, 1]) {
       const rail = branch.map(([x, v, z]) => [x, v + side * 0.13, z]);
-      d.path(rail, selected ? amber : "#dc9447", selected ? 1.05 : 0.63);
+      d.path(rail, selected ? flow : cobalt, selected ? 1.05 : 0.63);
       if (side === 1)
-        glints.push(edgeGlint(d, rail, "#ffce85", 5.2 + i, 0.3 * i));
+        glints.push(
+          edgeGlint(d, rail, selected ? signal : cobalt, 5.2 + i, 0.3 * i),
+        );
     }
     const sample = track(branch);
     for (const t of [0.23, 0.46, 0.69, 0.92]) {
@@ -385,13 +380,11 @@ export function heroDiagram(d) {
           [x, v - 0.13, z],
           [x, v + 0.13, z],
         ],
-        amber,
+        selected ? flow : cobalt,
         selected ? 0.95 : 0.48,
       );
     }
-    glints.push(
-      edgeGlint(d, [unitRim[5], unitRim[4]], "#baffdd", 6.7, 0.31 * i),
-    );
+    glints.push(edgeGlint(d, [unitRim[5], unitRim[4]], signal, 6.7, 0.31 * i));
     return inlet;
   });
   const outbound = [
@@ -414,13 +407,13 @@ export function heroDiagram(d) {
     [-5.05, -1.8, 0.62],
     [-5.5, -1.1, 0.35],
   ];
-  d.path(outbound, amber, 2.6);
+  d.path(outbound, flow, 2.6);
   d.path(
     outbound.map(([x, y, z]) => [x, y - 0.075, z]),
-    amber,
+    flow,
     1.05,
   );
-  dashed(d, reply, lilac, 1.35);
+  dashed(d, reply, C.violet, 1.35);
   for (const x of [3.04, 3.24])
     d.loop(
       [
@@ -429,21 +422,21 @@ export function heroDiagram(d) {
         [x, 0.79, 0.03],
         [x, -0.03, 0.03],
       ],
-      amber,
+      flow,
       1.45,
     );
   label(d, "middleware", 3.32, -0.28, 0.75, 0.24);
-  label(d, "reply · correlation 7", 0.22, -2.94, 2.25, 0.33, lilac);
+  label(d, "reply · correlation 7", 0.22, -2.94, 2.25, 0.33, C.violet);
   for (const port of [codec.point(-0.88, 0, 0.5), outlets[1], inlets[1]])
-    d.halo(port, 0.72, amber, 0.29);
+    d.halo(port, 0.72, flow, 0.29);
   for (const [i, rim] of [codecRim, routerRim].entries()) {
-    glints.push(edgeGlint(d, [rim[7], rim[6]], "#c0ffe4", 7.1, 0.35 + i * 0.3));
-    d.halo(rim[6], 0.34, mint, 0.13);
+    glints.push(edgeGlint(d, [rim[7], rim[6]], signal, 7.1, 0.35 + i * 0.3));
+    d.halo(rim[6], 0.34, cobalt, 0.13);
   }
   const pulseStart = d.positions.length / 3;
-  const send = tracer(d, outbound, amber, true);
+  const send = tracer(d, outbound, signal, true);
   const replyStart = d.positions.length / 3;
-  const receive = tracer(d, reply, lilac);
+  const receive = tracer(d, reply, C.violet);
   const animate = (position, seconds) => {
     const phase = Number.isFinite(seconds) ? (seconds % 7) / 7 : 0.42;
     for (const glint of glints)
@@ -458,9 +451,10 @@ export function heroDiagram(d) {
     target: [0, 0, 0],
     fov: 23.2,
     pulses: [
-      { vertex: pulseStart, color: amber, radius: 0.44, power: 0.29 },
-      { vertex: replyStart, color: lilac, radius: 0.44, power: 0.29 },
+      { vertex: pulseStart, color: signal, radius: 0.44, power: 0.29 },
+      { vertex: replyStart, color: C.violet, radius: 0.44, power: 0.29 },
     ],
+    background: voidColour,
     wideBloom: 0.27,
     animate,
   };
@@ -488,10 +482,10 @@ export function complexityDiagram(d) {
       Math.floor(i / 4) % 4 < 3 ? i + 4 : -1,
       i < 32 ? i + 16 : -1,
     ]) {
-      if (j >= 0) d.path([p, nodes[j]], mint, 0.88);
+      if (j >= 0) d.path([p, nodes[j]], cobalt, 0.88);
     }
     if (i % 2 === 0)
-      d.path([p, nodes[(i * 13 + 19) % nodes.length]], C.cyan, 0.67);
+      d.path([p, nodes[(i * 13 + 19) % nodes.length]], cobalt, 0.67);
   });
   const end = d.positions.length;
   const cx = 3.95;
@@ -505,9 +499,9 @@ export function complexityDiagram(d) {
     ];
     const bottom = top.map(([x, y, z]) => [x, y - 0.19, z]);
     d.face(top);
-    d.loop(top, mint, 1.85);
-    d.loop(bottom, mint, 1.05);
-    for (let j = 0; j < 4; j++) d.path([top[j], bottom[j]], mint, 1.15);
+    d.loop(top, cobalt, 1.85);
+    d.loop(bottom, cobalt, 1.05);
+    for (let j = 0; j < 4; j++) d.path([top[j], bottom[j]], cobalt, 1.15);
     label(d, name, cx, y + 0.31, 1.46, 0.36);
   }
   // A common axis aligns the three trays while the older wiring turns.
@@ -516,7 +510,7 @@ export function complexityDiagram(d) {
       [cx, 2.58, -1.25],
       [cx, -0.62, -0.1],
     ],
-    amber,
+    flow,
     0.82,
   );
   for (const x of [cx - 2, cx + 2])
@@ -525,7 +519,7 @@ export function complexityDiagram(d) {
         [x, 1.98, -0.1],
         [x, -0.81, -0.1],
       ],
-      mint,
+      cobalt,
       0.38,
     );
   d.path(
@@ -533,7 +527,7 @@ export function complexityDiagram(d) {
       [-1, 0.52, 0.7],
       [1.05, 0.52, 0.7],
     ],
-    amber,
+    flow,
     2.1,
   );
   d.path(
@@ -542,10 +536,10 @@ export function complexityDiagram(d) {
       [1.05, 0.52, 0.7],
       [0.62, 0.18, 0.7],
     ],
-    amber,
+    flow,
     2.1,
   );
-  d.halo([1.02, 0.52, 0.7], 0.62, amber, 0.12);
+  d.halo([1.02, 0.52, 0.7], 0.62, flow, 0.12);
   label(d, "BY HAND", center, -2.38, 0.8, 0.48);
   label(d, "framing · parsing", center, -2.97, 1, 0.32);
   label(d, "dispatch · state", center, -3.37, 1, 0.32);
@@ -555,7 +549,7 @@ export function complexityDiagram(d) {
     [1.05, 0.52, 0.78],
   ]);
   const tick = d.positions.length;
-  d.path([transfer(0), transfer(0.15)], "#ffdc91", 2.6);
+  d.path([transfer(0), transfer(0.15)], signal, 2.6);
   const animate = (position, seconds) => {
     const t = Number.isFinite(seconds) ? seconds : 0;
     // Rotate about the tangle's own centre. The layer stack remains registered.
@@ -578,7 +572,8 @@ export function complexityDiagram(d) {
     eye: [0.55, 4.8, 23],
     target: [0, 0, 0],
     fov: 21.6,
-    pulses: [{ vertex: tick / 3, color: amber, radius: 0.37, power: 0.25 }],
+    pulses: [{ vertex: tick / 3, color: signal, radius: 0.37, power: 0.25 }],
+    background: voidColour,
     wideBloom: 0.32,
     animate,
   };

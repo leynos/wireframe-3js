@@ -46,6 +46,7 @@ uniform sampler2D beams;
 uniform vec2 pixel;
 uniform float glow;
 uniform float wideBloom;
+uniform vec4 background;
 varying vec2 uvScreen;
 void main(){
   vec2 centered=uvScreen*2.-1.;
@@ -65,7 +66,7 @@ void main(){
   }
   float vignette=1.-.19*dot(centered,centered);
   vec3 rgb=(core+glow*halo*.32)*vignette;
-  vec3 bg=vec3(.0014,.003,.006)+vec3(.0005,.0015,.0025)*vignette;
+  vec3 bg=background.rgb+background.a*vec3(.0005,.0015,.0025)*vignette;
   float inside=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
   gl_FragColor=vec4(bg+inside*rgb,1.);
   #include <colorspace_fragment>
@@ -122,6 +123,7 @@ export class PlateRenderer {
         pixel: { value: new T.Vector2() },
         glow: { value: 1 },
         wideBloom: { value: 0 },
+        background: { value: new T.Vector4() },
       },
       vertexShader:
         "varying vec2 uvScreen; void main(){uvScreen=uv; gl_Position=vec4(position.xy,0.,1.);}",
@@ -151,6 +153,7 @@ export class PlateRenderer {
       span,
       spanAt,
       animateSurfaces,
+      animateDuringScan = false,
       animate,
       pulses = [],
       panes = [],
@@ -158,12 +161,19 @@ export class PlateRenderer {
       fixedCamera,
       flightCamera,
       horizon,
+      background,
       wideBloom = 1,
     } = makePlate(id);
+    this.animateDuringScan = animateDuringScan;
     this.fixedCamera = fixedCamera;
     this.flightCamera = flightCamera;
     this.halos = null;
     const hasHalos = d.halos.length > 0;
+    const ground = this.glass.uniforms.background.value;
+    if (background) {
+      const { r, g, b } = new T.Color(background);
+      ground.set(r, g, b, 0);
+    } else ground.set(0.0014, 0.003, 0.006, 1);
     this.glass.uniforms.wideBloom.value = hasHalos ? wideBloom : 0;
     if (this.buffer.texture.generateMipmaps !== hasHalos) {
       this.buffer.dispose();
@@ -364,7 +374,7 @@ export class PlateRenderer {
     this.aspect = w / h;
   }
   draw(t, scan, glow, secondsAfterScan = Infinity) {
-    this.animate?.(secondsAfterScan);
+    this.animate?.(this.animateDuringScan ? t : secondsAfterScan);
     this.updatePayload?.(secondsAfterScan, scan, glow, t);
     for (const update of this.pulseUpdates) update(glow);
     if (this.halos) {

@@ -249,7 +249,8 @@ function latch(d) {
 export function boundedPassage(d) {
   // The panel behind the payload closes the throat. The returning ribs are
   // visible on the outside of the barrel, down its left flank.
-  d.face(section(3.69, 2.99, 1.02, -2.15));
+  const throatZ = -2.15;
+  d.face(section(3.69, 2.99, 1.02, throatZ));
   for (let bay = 1; bay <= 21; bay++) {
     const z = -2.8 * bay;
     collar(d, z, 3.85, 3.15, 0.18, 0.39, steel);
@@ -363,6 +364,6 @@ export function boundedPassage(d) {
     eye: [-8.25, 2.1, 10.3],
     target: [-0.48, -0.18, -0.58],
     fov: 37,
-    payload: { firstVertex, halo: d.halos.at(-1) },
+    payload: { firstVertex, halo: d.halos.at(-1), throatZ },
   };
 }

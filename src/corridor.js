@@ -1,6 +1,54 @@
+import { DodecahedronGeometry, OctahedronGeometry } from "three";
 import { queueMotion } from "./queue-motion.js";
 import { C } from "./drawing.js";
 import { block, samples, mix } from "./civic-geometry.js";
+
+function thresholdTraffic(d) {
+  const near = 17,
+    length = 160,
+    speed = 18;
+  const packets = [];
+  const first = d.positions.length;
+  for (let i = 0; i < 16; i++) {
+    const shape = i % 2 ? DodecahedronGeometry : OctahedronGeometry;
+    const colour = [C.red, C.violet, C.violet, C.red][i % 4];
+    const lane = [-1.5, 0.85, -0.55, 1.55][i % 4];
+    const offset = 10 + (i * length) / 16;
+    const z = near - (offset % length),
+      y = 0.86;
+    const start = d.positions.length;
+    d.mesh(
+      new shape(0.64, 0).rotateX(0.22).rotateY(i * 0.9),
+      lane,
+      y,
+      z,
+      colour,
+      2,
+    );
+    packets.push({ start, end: d.positions.length, lane, y, z, offset });
+  }
+  return (position, seconds) => {
+    const t = Number.isFinite(seconds) ? seconds : 0;
+    for (const p of packets) {
+      const distance = (p.offset + t * speed) % length;
+      const z = near - distance;
+      // Resolve to a point at the horizon before recycling behind the camera.
+      const scale = Math.min(1, (length - distance) / 15);
+      const angle = (distance - p.offset) * 0.065;
+      const cos = Math.cos(angle) * scale,
+        sin = Math.sin(angle) * scale;
+      for (let i = p.start; i < p.end; i += 3) {
+        const x = d.positions[i] - p.lane,
+          dz = d.positions[i + 2] - p.z;
+        position.array[i] = p.lane + x * cos + dz * sin;
+        position.array[i + 1] = p.y + (d.positions[i + 1] - p.y) * scale;
+        position.array[i + 2] = z + dz * cos - x * sin;
+      }
+    }
+    position.addUpdateRange(first, d.positions.length - first);
+    position.needsUpdate = true;
+  };
+}
 
 export function corridor(d, id) {
   const gate = id === 4,
@@ -106,7 +154,12 @@ export function corridor(d, id) {
           0.6,
         );
     }
-    return { eye: [6.5, 1.4, 10], target: [-0.3, 3.55, -3], fov: 56 };
+    return {
+      eye: [6.5, 1.4, 10],
+      target: [-0.3, 3.55, -3],
+      fov: 56,
+      animate: thresholdTraffic(d),
+    };
   }
   const packets = [];
   const rows = 46,
@@ -157,6 +210,7 @@ export function corridor(d, id) {
     target: [0, 0, -0.2],
     fov: 48,
     fixedCamera: true,
+    animateDuringScan: true,
     animateSurfaces: true,
     animate: queueMotion(d, packets, rows * spacing),
   };

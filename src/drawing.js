@@ -3,6 +3,7 @@ import * as T from "three";
 export const C = {
   blue: "#477cf8",
   cyan: "#63ebf4",
+  violet: "#c9a2ff",
   green: "#38f49d",
   pink: "#f04fa5",
   red: "#fe536c",

@@ -24,7 +24,7 @@ const plates = [
   [
     "The threshold",
     0,
-    "A cyan road passes through a monumental rectangular gate.",
+    "Red and violet octahedrons and dodecahedrons race along a cyan road, through the gate and towards the horizon.",
   ],
   [
     "Proposal 845",

@@ -6,7 +6,7 @@ import { haloField } from "./phosphor.js";
 export function passagePayload(
   scene,
   drawing,
-  { firstVertex, halo },
+  { firstVertex, halo, throatZ },
   geometry,
   beam,
 ) {
@@ -50,22 +50,29 @@ export function passagePayload(
     const phase = (t + paint) % (paint + hold + flight);
     const u = Math.max(0, (phase - paint - hold) / flight);
     const progress = u * u;
-    // Compensate for perspective compression near the far end so the
-    // apparent motion continues accelerating all the way to the last bay.
-    const depth = (60 * progress) / (4.6 - 3.6 * progress);
-    const size = 1 - T.MathUtils.smoothstep(progress, 0.75, 1);
+    // Perspective maps an unbounded run along -Z to the same vanishing
+    // point as the longitudinal rails, including during the camera drift.
+    const depth = (16 * progress) / (1 - progress);
     const ink =
       scan < 1 ? (scan - firstStroke) / (1 - firstStroke) : phase / paint;
     cube.position.copy(center);
     cube.position.z -= depth;
+    // Begin as the leading face enters, then dim across four passage bays.
+    const inside = T.MathUtils.smoothstep(
+      throatZ - cube.position.z,
+      -0.74,
+      4 * 2.8,
+    );
+    const transmission = 1 - 0.82 * inside;
+    const size = 1 - T.MathUtils.smoothstep(depth, 150, 280);
     cube.scale.setScalar(size);
     cube.visible = ink > 0 && size > 0;
     material.uniforms.scan.value = ink >= 1 ? 1.02 : ink;
-    material.uniforms.transmission.value =
-      1 - 0.48 * T.MathUtils.smoothstep(depth, 1, 8);
+    material.uniforms.transmission.value = transmission;
     glow.position.copy(cube.position);
     glow.visible = enabled && cube.visible;
     glow.material.uniforms.time.value = time;
+    glow.material.uniforms.intensity.value = transmission;
     // The halo shader sizes its quad in view space. Its reveal uniform lets
     // the light accumulate with the fresh strokes and die out at the far end.
     glow.material.uniforms.scan.value =

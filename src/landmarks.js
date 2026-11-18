@@ -36,7 +36,7 @@ function globe(d, x, y, z, r, c) {
 }
 
 export function cityGlobe(d, id) {
-  const violet = id === 18 ? "#c9a2ff" : "#adaeff";
+  const violet = id === 18 ? C.violet : "#adaeff";
   // A shallow, elliptical plinth holds a continuous skyline on the lower chord.
   const ellipse = (rx, rz) =>
     samples(64, (t) => [rx * Math.cos(t * TAU), rz * Math.sin(t * TAU)]).slice(
